@@ -1,4 +1,3 @@
-
 #include "ShanonEntropy.h"
 
 constexpr DOUBLE

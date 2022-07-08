@@ -71,6 +71,3 @@ VOID
 RWFDissconnect(
         _In_opt_ PVOID ConnectionCookie
 );
-
-
-

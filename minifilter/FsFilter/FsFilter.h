@@ -168,4 +168,3 @@ Create
 );
 
 UNICODE_STRING GvolumeData;
-
