@@ -14,8 +14,9 @@ DriverVer   = 08/07/2022,1.0.0.0
 CatalogFile = FsFilter.cat
 
 [DestinationDirs]
-DefaultDestDir          = 12
+DefaultDestDir = 12
 MiniFilter.DriverFiles  = 12            ;%windir%\system32\drivers
+MiniFilter.UserFiles = 10,FltMgr
 
 ;;
 ;; Default install sections
@@ -46,7 +47,7 @@ DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
 DisplayName      = %ServiceName%
 Description      = %ServiceDescription%
 ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
-Dependencies     = "FltMgr"
+Dependencies     = FltMgr
 ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
 StartType        = 3                            ;SERVICE_DEMAND_START
 ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
