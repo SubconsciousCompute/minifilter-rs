@@ -1,45 +1,46 @@
 #pragma once
 
 #include <fltKernel.h>
+
+#include "HashTable.h"
 #include "KernelCommon.h"
 #include "KernelString.h"
-#include "HashTable.h"
-
 
 /* DriverData: shared class across driver, hold driver D.S. */
 class DriverData {
-    BOOLEAN FilterRun; // true if filter currently runs
+    BOOLEAN FilterRun;  // true if filter currently runs
     PFLT_FILTER Filter;
-    PDRIVER_OBJECT DriverObject; // internal
-    WCHAR systemRootPath[MAX_FILE_NAME_LENGTH]; // system root path, help analyze image files loaded
-    ULONG pid; // pid of the current connected user mode application, set by communication
+    PDRIVER_OBJECT DriverObject;  // internal
+    WCHAR systemRootPath
+        [MAX_FILE_NAME_LENGTH];  // system root path, help analyze image files loaded
+    ULONG
+    pid;  // pid of the current connected user mode application, set by communication
 
-    ULONG irpOpsSize; // number of irp ops waiting in entry_list
-    LIST_ENTRY irpOps; // list entry bdirectional list of irp ops
-    KSPIN_LOCK irpOpsLock; // lock for irp list ops
+    ULONG irpOpsSize;  // number of irp ops waiting in entry_list
+    LIST_ENTRY irpOps;  // list entry bdirectional list of irp ops
+    KSPIN_LOCK irpOpsLock;  // lock for irp list ops
 
     ULONG directoryRootsSize;  // number of protected dirs in list
     LIST_ENTRY rootDirectories;  // list entry bdirectional of protected dirs
-    KSPIN_LOCK directoriesSpinLock; // lock for directory list
+    KSPIN_LOCK directoriesSpinLock;  // lock for directory list
 
     /* GID system data members */
-    ULONGLONG GidCounter; // interal counter for gid, every new application recieves a new gid
-    HashMap GidToPids; // mapping from gid to pids
-    HashMap PidToGids; // mapping from pid to gid
-    ULONGLONG gidsSize; // number of gids currently active
+    ULONGLONG
+    GidCounter;  // interal counter for gid, every new application recieves a new gid
+    HashMap GidToPids;  // mapping from gid to pids
+    HashMap PidToGids;  // mapping from pid to gid
+    ULONGLONG gidsSize;  // number of gids currently active
     LIST_ENTRY GidsList;  // list entry of gids, used to clear memory
     KSPIN_LOCK GIDSystemLock;
 
-
-private:
+  private:
     // call assumes protected code - high IRQL
     BOOLEAN RemoveProcessRecordAux(ULONG ProcessId, ULONGLONG gid);
 
     // call assumes protected code - high IRQL
     BOOLEAN RemoveGidRecordAux(PGID_ENTRY gidRecord);
 
-public:
-
+  public:
     // c'tor init D.S.
     explicit DriverData(PDRIVER_OBJECT DriverObject);
 
@@ -53,8 +54,10 @@ public:
     VOID setSystemRootPath(PWCHAR setsystemRootPath) {
         RtlZeroBytes(systemRootPath, MAX_FILE_NAME_SIZE);
         RtlCopyBytes(systemRootPath, setsystemRootPath, MAX_FILE_NAME_LENGTH);
-        RtlCopyBytes(systemRootPath + wcsnlen(systemRootPath, MAX_FILE_NAME_LENGTH / 2), L"\\Windows",
-                     wcsnlen(L"\\Windows", MAX_FILE_NAME_LENGTH / 2));
+        RtlCopyBytes(
+            systemRootPath + wcsnlen(systemRootPath, MAX_FILE_NAME_LENGTH / 2),
+            L"\\Windows",
+            wcsnlen(L"\\Windows", MAX_FILE_NAME_LENGTH / 2));
         DbgPrint("Set system root path %ls\n", systemRootPath);
     }
 
@@ -62,7 +65,10 @@ public:
     BOOLEAN RemoveProcess(ULONG ProcessId);
 
     // record a process which was created to the GID system, function raise IRQL
-    BOOLEAN RecordNewProcess(PUNICODE_STRING ProcessName, ULONG ProcessId, ULONG ParentPid);
+    BOOLEAN RecordNewProcess(
+        PUNICODE_STRING ProcessName,
+        ULONG ProcessId,
+        ULONG ParentPid);
 
     // removed a gid from the system, function raise IRQL
     BOOLEAN RemoveGid(ULONGLONG gid);
@@ -71,7 +77,11 @@ public:
     ULONGLONG GetGidSize(ULONGLONG gid, PBOOLEAN found);
 
     // help function, recieves a buffer and returns an array of pids, returns true only if all pids are restored
-    BOOLEAN GetGidPids(ULONGLONG gid, PULONG buffer, ULONGLONG bufferSize, PULONGLONG returnedLength);
+    BOOLEAN GetGidPids(
+        ULONGLONG gid,
+        PULONG buffer,
+        ULONGLONG bufferSize,
+        PULONGLONG returnedLength);
 
     // if found return true on found else return false
     ULONGLONG GetProcessGid(ULONG ProcessId, PBOOLEAN found);
@@ -93,11 +103,17 @@ public:
         return !FilterRun;
     }
 
-    PFLT_FILTER *getFilterAdd() { return &Filter; }
+    PFLT_FILTER* getFilterAdd() {
+        return &Filter;
+    }
 
-    PFLT_FILTER getFilter() { return Filter; }
+    PFLT_FILTER getFilter() {
+        return Filter;
+    }
 
-    ULONG getPID() { return pid; }
+    ULONG getPID() {
+        return pid;
+    }
 
     ULONG setPID(ULONG Pid) {
         pid = Pid;
@@ -116,7 +132,10 @@ public:
     PIRP_ENTRY GetFirstIrpMessage();
 
     // Takes Irps from the driverData and copy them to a buffer, also copies the file names on which the irp occured, function raise IRQL
-    VOID DriverGetIrps(PVOID Buffer, ULONG BufferSize, PULONG ReturnOutputBufferLength);
+    VOID DriverGetIrps(
+        PVOID Buffer,
+        ULONG BufferSize,
+        PULONG ReturnOutputBufferLength);
 
     LIST_ENTRY GetAllEntries();
 
@@ -140,8 +159,7 @@ public:
 
         // clear gid system
         ClearGidsPids();
-
     }
 };
 
-extern DriverData *driverData;
+extern DriverData* driverData;

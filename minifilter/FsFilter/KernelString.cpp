@@ -1,9 +1,7 @@
 #include "KernelString.h"
 
 NTSTATUS
-FSAllocateUnicodeString(
-        _Inout_ PUNICODE_STRING String
-)
+FSAllocateUnicodeString(_Inout_ PUNICODE_STRING String)
 /*++
 
 Routine Description:
@@ -22,13 +20,10 @@ Return Value:
 
 --*/
 {
-
-    String->Buffer = (PWCH) ExAllocatePoolWithTag(NonPagedPool,
-                                                  String->MaximumLength,
-                                                  'RW');
+    String->Buffer =
+        (PWCH)ExAllocatePoolWithTag(NonPagedPool, String->MaximumLength, 'RW');
 
     if (String->Buffer == NULL) {
-
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
@@ -37,11 +32,7 @@ Return Value:
     return STATUS_SUCCESS;
 }
 
-
-VOID
-FSFreeUnicodeString(
-        _Inout_ PUNICODE_STRING String
-)
+VOID FSFreeUnicodeString(_Inout_ PUNICODE_STRING String)
 /*++
 
 Routine Description:
@@ -59,9 +50,7 @@ Return Value:
 --*/
 {
     if (String->Buffer) {
-
-        ExFreePoolWithTag(String->Buffer,
-                          'RW');
+        ExFreePoolWithTag(String->Buffer, 'RW');
         String->Buffer = NULL;
     }
 

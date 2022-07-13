@@ -1,14 +1,15 @@
 #pragma once
 
 #include <fltKernel.h>
+
 #include "../SharedDefs/SharedDefs.h"
 
 //#define DEBUG_IRP
 #ifdef DEBUG_IRP
-#define IS_DEBUG_IRP 1
+    #define IS_DEBUG_IRP 1
 #else
-#define IS_DEBUG_IRP 0
-#endif // DEBUG_IRP
+    #define IS_DEBUG_IRP 0
+#endif  // DEBUG_IRP
 
 // PID_ENTRY - for each process in the system we record, we get its pid and image file, those are stord in thi struct
 // the struct is meant to be used in blist (LIST_ENTRY)
@@ -24,14 +25,14 @@ typedef struct _PID_ENTRY {
         entry.Blink = nullptr;
     }
 
-    void *_PID_ENTRY::operator new(size_t size) {
-        void *ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+    void* _PID_ENTRY::operator new(size_t size) {
+        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
         if (size && ptr != nullptr)
             memset(ptr, 0, size);
         return ptr;
     }
 
-    void _PID_ENTRY::operator delete(void *ptr) {
+    void _PID_ENTRY::operator delete(void* ptr) {
         ExFreePoolWithTag(ptr, 'RW');
     }
 
@@ -52,8 +53,9 @@ typedef struct _DIRECTORY_ENTRY {
 typedef struct _IRP_ENTRY {
     LIST_ENTRY entry;
     DRIVER_MESSAGE data;
-    UNICODE_STRING filePath; // keep path to unicode string related to the object, we copy it later to user
-    WCHAR Buffer[MAX_FILE_NAME_LENGTH]; // unicode string buffer for file name
+    UNICODE_STRING
+        filePath;  // keep path to unicode string related to the object, we copy it later to user
+    WCHAR Buffer[MAX_FILE_NAME_LENGTH];  // unicode string buffer for file name
 
     _IRP_ENTRY() {
         filePath.Length = 0;
@@ -68,28 +70,28 @@ typedef struct _IRP_ENTRY {
         data.FileLocationInfo = FILE_NOT_PROTECTED;
     }
 
-    void *_IRP_ENTRY::operator new(size_t size) {
-        void *ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+    void* _IRP_ENTRY::operator new(size_t size) {
+        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
         if (size && ptr != nullptr)
             memset(ptr, 0, size);
         return ptr;
     }
 
-    void _IRP_ENTRY::operator delete(void *ptr) {
+    void _IRP_ENTRY::operator delete(void* ptr) {
         ExFreePoolWithTag(ptr, 'RW');
     }
 
 } IRP_ENTRY, *PIRP_ENTRY;
 
-void *__cdecl operator new(size_t size);
+void* __cdecl operator new(size_t size);
 
-void __cdecl operator delete(void *data, size_t size);
+void __cdecl operator delete(void* data, size_t size);
 
-void __cdecl operator delete(void *data);
+void __cdecl operator delete(void* data);
 
 NTSTATUS CopyWString(LPWSTR dest, LPCWSTR source, size_t size);
 
-WCHAR *stristr(const WCHAR *String, const WCHAR *Pattern);
+WCHAR* stristr(const WCHAR* String, const WCHAR* Pattern);
 
 BOOLEAN startsWith(PUNICODE_STRING String, PWCHAR Pattern);
 
@@ -110,7 +112,7 @@ struct GID_ENTRY {
     }
 
     //copy
-    GID_ENTRY(const GID_ENTRY &a) {
+    GID_ENTRY(const GID_ENTRY& a) {
         HeadListPids.Flink = a.HeadListPids.Flink;
         HeadListPids.Blink = a.HeadListPids.Blink;
         GidListEntry.Flink = a.GidListEntry.Flink;
@@ -119,7 +121,7 @@ struct GID_ENTRY {
         pidsSize = a.pidsSize;
     }
 
-    const GID_ENTRY &operator=(const GID_ENTRY &a) {
+    const GID_ENTRY& operator=(const GID_ENTRY& a) {
         HeadListPids.Flink = a.HeadListPids.Flink;
         HeadListPids.Blink = a.HeadListPids.Blink;
         GidListEntry.Flink = a.GidListEntry.Flink;
@@ -130,4 +132,4 @@ struct GID_ENTRY {
     }
 };
 
-typedef GID_ENTRY *PGID_ENTRY;
+typedef GID_ENTRY* PGID_ENTRY;

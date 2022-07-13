@@ -1,8 +1,7 @@
 #pragma once
 
-//Hashnode class 
+//Hashnode class
 struct HashNode {
-
     LIST_ENTRY entry;
     HANDLE value;
     ULONGLONG key;
@@ -14,13 +13,13 @@ struct HashNode {
         key = skey;
     }
 
-    void *HashNode::operator new(size_t size) {
-        void *ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+    void* HashNode::operator new(size_t size) {
+        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
         memset(ptr, 0, size);
         return ptr;
     }
 
-    void HashNode::operator delete(void *ptr) {
+    void HashNode::operator delete(void* ptr) {
         ExFreePoolWithTag(ptr, 'RW');
     }
     //fixme needs new and delete operator
@@ -36,7 +35,7 @@ class HashMap {
     ULONGLONG size;
     //dummy node
 
-public:
+  public:
     HashMap() {
         //Initial capacity of hash array
         capacity = 100;
@@ -67,12 +66,12 @@ public:
 
         PLIST_ENTRY head = arr[hashIndex];
         PLIST_ENTRY iterator = head->Flink;
-        while (iterator != head) { // update
-            HashNode *pClass;
+        while (iterator != head) {  // update
+            HashNode* pClass;
             //
             // Do some processing.
             //
-            pClass = (HashNode *) CONTAINING_RECORD(iterator, HashNode, entry);
+            pClass = (HashNode*)CONTAINING_RECORD(iterator, HashNode, entry);
             if (pClass->key == key) {
                 HANDLE val = pClass->value;
                 pClass->value = value;
@@ -81,7 +80,7 @@ public:
             iterator = iterator->Flink;
         }
         // insert, no key found
-        HashNode *temp = new HashNode(key, value);
+        HashNode* temp = new HashNode(key, value);
         InsertHeadList(head, &(temp->entry));
         size++;
         return value;
@@ -94,11 +93,11 @@ public:
         PLIST_ENTRY head = arr[hashIndex];
         PLIST_ENTRY iterator = head->Flink;
         while (iterator != head) {
-            HashNode *pClass;
+            HashNode* pClass;
             //
             // Do some processing.
             //
-            pClass = (HashNode *) CONTAINING_RECORD(iterator, HashNode, entry);
+            pClass = (HashNode*)CONTAINING_RECORD(iterator, HashNode, entry);
             if (pClass->key == key) {
                 RemoveEntryList(iterator);
                 HANDLE value = pClass->value;
@@ -119,11 +118,11 @@ public:
         PLIST_ENTRY head = arr[hashIndex];
         PLIST_ENTRY iterator = head->Flink;
         while (iterator != head) {
-            HashNode *pClass;
+            HashNode* pClass;
             //
             // Do some processing.
             //
-            pClass = (HashNode *) CONTAINING_RECORD(iterator, HashNode, entry);
+            pClass = (HashNode*)CONTAINING_RECORD(iterator, HashNode, entry);
             if (pClass->key == key) {
                 return pClass->value;
             }
@@ -143,5 +142,4 @@ public:
     bool isEmpty() {
         return size == 0;
     }
-
 };

@@ -1,20 +1,19 @@
 #include "KernelCommon.h"
 
-void *__cdecl operator new(size_t size) {
+void* __cdecl operator new(size_t size) {
     return ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
 }
 
-void __cdecl operator delete(void *data, size_t size) {
+void __cdecl operator delete(void* data, size_t size) {
     UNREFERENCED_PARAMETER(size);
     if (data != NULL)
         ExFreePoolWithTag(data, 'RW');
 }
 
-void __cdecl operator delete(void *data) {
+void __cdecl operator delete(void* data) {
     if (data != NULL)
         ExFreePoolWithTag(data, 'RW');
 }
-
 
 // FIXME: add count param for copy length, MAX_FILE_NAME_LENGTH - 1 is default value
 NTSTATUS CopyWString(LPWSTR dest, LPCWSTR source, size_t size) {
@@ -27,20 +26,22 @@ NTSTATUS CopyWString(LPWSTR dest, LPCWSTR source, size_t size) {
     }
 }
 
-WCHAR *stristr(const WCHAR *String, const WCHAR *Pattern) {
+WCHAR* stristr(const WCHAR* String, const WCHAR* Pattern) {
     WCHAR *pptr, *sptr, *start;
 
-    for (start = (WCHAR *) String; *start != L'\0'; ++start) {
-        while (((*start != L'\0') && (RtlUpcaseUnicodeChar(*start)
-                                      != RtlUpcaseUnicodeChar(*Pattern)))) {
+    for (start = (WCHAR*)String; *start != L'\0'; ++start) {
+        while (
+            ((*start != L'\0')
+             && (RtlUpcaseUnicodeChar(*start)
+                 != RtlUpcaseUnicodeChar(*Pattern)))) {
             ++start;
         }
 
         if (L'\0' == *start)
             return NULL;
 
-        pptr = (WCHAR *) Pattern;
-        sptr = (WCHAR *) start;
+        pptr = (WCHAR*)Pattern;
+        sptr = (WCHAR*)start;
 
         while (RtlUpcaseUnicodeChar(*sptr) == RtlUpcaseUnicodeChar(*pptr)) {
             sptr++;
@@ -55,14 +56,16 @@ WCHAR *stristr(const WCHAR *String, const WCHAR *Pattern) {
 }
 
 BOOLEAN startsWith(PUNICODE_STRING String, PWCHAR Pattern) {
-    if (String == NULL || Pattern == NULL) return FALSE;
+    if (String == NULL || Pattern == NULL)
+        return FALSE;
     PWCHAR buffer = String->Buffer;
     for (ULONG i = 0; i < wcslen(Pattern); i++) {
         if (String->Length <= 2 * i) {
             //DbgPrint("String ended before pattern, %d\n", i);
             return FALSE;
         }
-        if (RtlDowncaseUnicodeChar(Pattern[i]) != RtlDowncaseUnicodeChar(buffer[i])) {
+        if (RtlDowncaseUnicodeChar(Pattern[i])
+            != RtlDowncaseUnicodeChar(buffer[i])) {
             //DbgPrint("Chars not eq: %d, %d\n", RtlDowncaseUnicodeChar(Pattern[i]), RtlDowncaseUnicodeChar(buffer[i]));
             return FALSE;
         }
