@@ -11,6 +11,7 @@ use windows_sys::Win32::Storage::FileSystem::FILE_ID_INFO;
 
 /// See [IOMessage] struct. Used with [crate::driver_com::IrpMajorOp::IrpSetInfo]
 #[derive(FromPrimitive)]
+#[repr(C)]
 pub enum FileChangeInfo {
     FileChangeNotSet,
     FileOpenDirectory,
@@ -26,6 +27,7 @@ pub enum FileChangeInfo {
 
 /// See [IOMessage] struct.
 #[derive(FromPrimitive)]
+#[repr(C)]
 pub enum FileLocationInfo {
     FileNotProtected,
     FileProtected,
@@ -154,7 +156,7 @@ pub struct CDriverMsgs<'a> {
 impl UnicodeString {
     pub fn to_string(&self) -> String {
         unsafe {
-            let str_slice: &[u16] = std::slice::from_raw_parts(self.buffer, self.length as usize);
+            let str_slice = std::slice::from_raw_parts(self.buffer, self.length as usize);
             let mut first_zero_index = 0;
             for (i, c) in str_slice.iter().enumerate() {
                 if *c == 0 {
@@ -169,7 +171,7 @@ impl UnicodeString {
     /// Get the file path from the UnicodeString path and the extension returned by the driver.
     pub fn to_string_ext(&self, extension: [wchar_t; 12]) -> String {
         unsafe {
-            let str_slice: &[u16] = std::slice::from_raw_parts(self.buffer, self.length as usize);
+            let str_slice = std::slice::from_raw_parts(self.buffer, self.length as usize);
             let mut first_zero_index = 0;
             let mut last_dot_index = 0;
             let mut first_zero_index_ext = 0;

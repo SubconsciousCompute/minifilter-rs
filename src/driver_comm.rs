@@ -9,9 +9,7 @@ use std::ptr;
 use sysinfo::{get_current_pid, Pid, PidExt};
 use wchar::wchar_t;
 use widestring::U16CString;
-use windows::core::HRESULT;
-// use windows_sys::core::{PCWSTR, PWSTR};
-// use windows::Win32::Foundation::HANDLE;
+use windows_sys::core::{HRESULT, PCSTR, PCWSTR};
 use windows_sys::Win32::Foundation::{CloseHandle, HANDLE};
 use windows_sys::Win32::Storage::FileSystem::GetDriveTypeA;
 use windows_sys::Win32::Storage::InstallableFileSystems::{
@@ -44,6 +42,7 @@ struct DriverComMessage {
 /// A minifilter is identified by a port (know in advance), like a named pipe used for communication,
 /// and a handle, retrieved by [Self::open_kernel_driver_com].
 #[derive(Debug)]
+#[repr(C)]
 pub struct Driver {
     handle: HANDLE,
 }
@@ -68,7 +67,7 @@ impl Driver {
             path: buf, //wch!("\0"),
         };
         let mut tmp: u32 = 0;
-        HRESULT(unsafe {
+        unsafe {
             FilterSendMessage(
                 self.handle,
                 ptr::addr_of_mut!(get_irp_msg) as *mut c_void,
@@ -77,29 +76,28 @@ impl Driver {
                 0,
                 &mut tmp as *mut u32,
             )
-        })
+        }
     }
 
     /// Try to open a com canal with the minifilter before this app is registered. This fn can fail
-    /// is the minifilter is unreachable:
+    /// if the minifilter is unreachable:
     /// * if it is not started (try ```sc start owlyshieldransomfilter``` first
     /// * if a connection is already established: it can accepts only one at a time.
     /// In that case the Error is raised by the OS (windows::Error) and is generally readable.
-    pub fn open_kernel_driver_com() -> Result<Driver, HRESULT> {
+    pub fn open_kernel_driver_com() -> (Driver, HRESULT) {
         let _com_port_name = U16CString::from_str("\\RWFilter").unwrap().into_raw();
-        let mut _handle: HANDLE = 0;
-        unsafe {
+        let mut driver = Self { handle: 0 };
+        let k = unsafe {
             FilterConnectCommunicationPort(
                 _com_port_name,
                 0,
                 ptr::null(),
                 0,
                 ptr::null_mut(),
-                &mut _handle as *mut HANDLE,
-            );
-        }
-        let res = Driver { handle: _handle };
-        Ok(res)
+                &mut driver.handle as *mut HANDLE,
+            )
+        };
+        (driver, k)
     }
 
     /// Ask the driver for a [ReplyIrp], if any. This is a low-level function and the returned object
@@ -126,7 +124,7 @@ impl Driver {
         if tmp != 0 {
             let reply_irp: ReplyIrp;
             unsafe {
-                reply_irp = std::ptr::read_unaligned(vecnew.as_ptr() as *const ReplyIrp);
+                reply_irp = ptr::read_unaligned(vecnew.as_ptr() as *const ReplyIrp);
             }
             return Some(reply_irp);
         }
@@ -135,10 +133,10 @@ impl Driver {
 
     /// Ask the minifilter to kill all pids related to the given *gid*. Pids are killed in drivermode
     /// by calls to NtClose.
-    pub fn try_kill(&self, gid: c_ulonglong) -> Result<HRESULT, windows::core::Error> {
+    pub fn try_kill(&self, gid: c_ulonglong) -> HRESULT {
         let mut killmsg = DriverComMessage {
             r#type: DriverComMessageType::KillGid as c_ulong,
-            pid: 0, //get_current_pid().unwrap() as u32,
+            pid: get_current_pid().unwrap().as_u32(), // 0
             gid,
             path: [0; 520],
         };
@@ -153,10 +151,8 @@ impl Driver {
                 ptr::addr_of_mut!(res) as *mut c_void,
                 4_u32,
                 ptr::addr_of_mut!(res_size) as *mut u32,
-            );
+            )
         }
-        let hres = HRESULT(res as i32);
-        Ok(hres)
     }
 
     fn string_to_commessage_buffer(bufstr: &str) -> BufPath {
@@ -185,6 +181,7 @@ impl Driver {
 }
 
 #[allow(dead_code)]
+#[repr(C)]
 /// Messages types to send directives to the minifilter, by using te [DriverComMessage] struct.
 enum DriverComMessageType {
     /// Not used yet. The minifilter has the ability to monitor a specific part of the fs.
@@ -201,6 +198,7 @@ enum DriverComMessageType {
 
 /// See [shared_def::IOMessage] struct and
 /// [this doc](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-major-function-codes).
+#[repr(C)]
 pub enum IrpMajorOp {
     /// Nothing happened
     IrpNone,
@@ -233,6 +231,7 @@ impl IrpMajorOp {
 
 /// See [shared_def::IOMessage] struct and
 /// [this doc](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea).
+#[repr(C)]
 pub enum DriveType {
     /// The drive type cannot be determined.
     DriveUnknown,
@@ -254,10 +253,10 @@ impl DriveType {
     pub fn from_filepath(filepath: String) -> DriveType {
         let mut drive_type = 1u32;
         if !filepath.is_empty() {
-            let drive_path = &filepath[..(filepath.find('\\').unwrap() + 1)];
+            let drive_path = &filepath[..(filepath.find(r"\").unwrap() + 1)];
+            let k = CString::new(drive_path).unwrap();
             unsafe {
-                let k = CString::new(drive_path).unwrap();
-                drive_type = GetDriveTypeA(k.as_ptr() as *const u8);
+                drive_type = GetDriveTypeA(k.as_ptr() as PCSTR);
             }
         }
         match drive_type {
