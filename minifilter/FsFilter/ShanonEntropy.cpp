@@ -18,8 +18,7 @@ DOUBLE shannonEntropy(PUCHAR buffer, size_t size) {
         KeSaveExtendedProcessorState(XSTATE_MASK_LEGACY, &SaveState);
         for (ULONG i = 0; i < MAX_BYTE_SIZE; i++) {
             if (bucketByteVals[i] != 0) {
-                DOUBLE
-                val = (DOUBLE)bucketByteVals[i] / (DOUBLE)size;
+                DOUBLE val = (DOUBLE)bucketByteVals[i] / (DOUBLE)size;
                 entropy += (-1) * val * log(val) * M_LOG2E;
             }
         }

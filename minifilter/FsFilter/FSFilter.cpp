@@ -37,8 +37,7 @@ EXTERN_C_END
 //  for.  This is only used to register with the filter manager
 //
 
-CONST
-FLT_OPERATION_REGISTRATION Callbacks[] = {
+CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
     {IRP_MJ_CREATE, 0, FSPreOperation, FSPostOperation},
     //{IRP_MJ_CLOSE, 0, FSPreOperation, FSPostOperation},
     {IRP_MJ_READ, 0, FSPreOperation, FSPostOperation},
@@ -133,11 +132,7 @@ Return Value:
     status = InitCommData();
 
     if (!NT_SUCCESS(status)) {
-        FltUnregisterFilter(driverData->
-
-                            getFilter()
-
-        );
+        FltUnregisterFilter(driverData->getFilter());
         delete driverData;
         delete commHandle;
         return status;
@@ -149,20 +144,12 @@ Return Value:
 
     if (!NT_SUCCESS(status)) {
         CommClose();
-
-        FltUnregisterFilter(driverData->
-
-                            getFilter()
-
-        );
+        FltUnregisterFilter(driverData->getFilter());
         delete driverData;
         delete commHandle;
         return status;
     }
-    driverData->
-
-        setFilterStart();
-
+    driverData->setFilterStart();
     DbgPrint("loaded scanner successfully");
     // new code
     // FIXME: check status and release in unload
@@ -364,9 +351,7 @@ FLT_PREOP_CALLBACK_STATUS
 FSPreOperation(
     _Inout_ PFLT_CALLBACK_DATA Data,
     _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _Flt_CompletionContext_Outptr_ PVOID
-
-        * CompletionContext)
+    _Flt_CompletionContext_Outptr_ PVOID* CompletionContext)
 /*++
 
 Routine Description:
@@ -394,12 +379,7 @@ Return Value:
     //  See if this create is being done by our user process.
     if (FltGetRequestorProcessId(Data) == 4)
         return FLT_PREOP_SUCCESS_NO_CALLBACK;  // system process -  skip
-    if (FltGetRequestorProcessId(Data)
-        == driverData->
-
-           getPID()
-
-    ) {
+    if (FltGetRequestorProcessId(Data) == driverData->getPID()) {
         if (IS_DEBUG_IRP)
             DbgPrint(
                 "!!! FSFilter: Allowing pre op for trusted process, no post op\n");
@@ -424,19 +404,9 @@ NTSTATUS
 FSProcessPreOperartion(
     _Inout_ PFLT_CALLBACK_DATA Data,
     _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _Flt_CompletionContext_Outptr_ PVOID
-
-        * CompletionContext) {
+    _Flt_CompletionContext_Outptr_ PVOID* CompletionContext) {
     // no communication
-    if (driverData->
-
-        isFilterClosed()
-
-        ||
-
-        IsCommClosed()
-
-    ) {
+    if (driverData->isFilterClosed() || IsCommClosed()) {
         //DbgPrint("!!! FSFilter: Filter is closed or Port is closed, skipping data\n");
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
@@ -459,7 +429,6 @@ FSProcessPreOperartion(
         return hr;
     if (isDir)
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
-
     PIRP_ENTRY newEntry = new IRP_ENTRY();
     if (newEntry == NULL) {
         FltReferenceFileNameInformation(nameInfo);
@@ -1037,11 +1006,7 @@ FSEntrySetFileName(
     return hr;
 }*/
 
-    if (!
-
-        KeAreAllApcsDisabled()
-
-    ) {
+    if (!KeAreAllApcsDisabled()) {
         hr = IoVolumeDeviceToDosName(devObject, &GvolumeData);
     }
     volumeDosNameSize = GvolumeData.Length;
@@ -1132,11 +1097,8 @@ VOID CopyExtension(PWCHAR dest, PFLT_FILE_NAME_INFORMATION nameInfo) {
     }
 }
 
-static NTSTATUS GetProcessNameByHandle(
-    _In_ HANDLE ProcessHandle,
-    _Out_ PUNICODE_STRING
-
-        * Name) {
+static NTSTATUS
+GetProcessNameByHandle(_In_ HANDLE ProcessHandle, _Out_ PUNICODE_STRING* Name) {
     ULONG retLength = 0;
     ULONG pniSize = 512;
     PUNICODE_STRING pni = NULL;

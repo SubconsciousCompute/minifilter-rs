@@ -48,9 +48,7 @@ RWFConnect(
     _In_opt_ PVOID ServerPortCookie,
     _In_reads_bytes_opt_(SizeOfContext) PVOID ConnectionContext,
     _In_ ULONG SizeOfContext,
-    _Outptr_result_maybenull_ PVOID
-
-        * ConnectionCookie);
+    _Outptr_result_maybenull_ PVOID* ConnectionCookie);
 
 // AMFConnect: handle messages recieved from user mode
 

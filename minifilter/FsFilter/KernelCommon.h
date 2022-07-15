@@ -54,7 +54,7 @@ typedef struct _IRP_ENTRY {
     LIST_ENTRY entry;
     DRIVER_MESSAGE data;
     UNICODE_STRING
-        filePath;  // keep path to unicode string related to the object, we copy it later to user
+    filePath;  // keep path to unicode string related to the object, we copy it later to user
     WCHAR Buffer[MAX_FILE_NAME_LENGTH];  // unicode string buffer for file name
 
     _IRP_ENTRY() {
