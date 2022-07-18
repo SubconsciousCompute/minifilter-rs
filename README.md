@@ -1,10 +1,14 @@
 # minifilter-rs
 
 ## Table of Contents
+
 - [Minifilter Driver](https://github.com/sn99/minifilter-rs#minifilter-driver)
     - [Building Driver](https://github.com/sn99/minifilter-rs#building-driver)
     - [Installing Driver](https://github.com/sn99/minifilter-rs#building-driver)
-    - [Loading/Removing Driver](https://github.com/sn99/minifilter-rs#loading/removing-driver)
+    - [Loading/Removing Driver](https://github.com/sn99/minifilter-rs#loadingremoving-driver)
+- [Rust Application](https://github.com/sn99/minifilter-rs#rust-application)
+  - [Building Rust App](https://github.com/sn99/minifilter-rs#building-rust-app)
+  - [Running Rust App](https://github.com/sn99/minifilter-rs#running-rust-app)
 
 ## Minifilter Driver
 
@@ -70,3 +74,18 @@ npsvctrig                               1        46000         0
 Wof                                     3        40700         0
 FileInfo                                5        40500         0
 ```
+
+## Rust Application
+
+### Building Rust App
+
+Simply use `cargo build --release` to build the application
+
+### Running Rust App
+
+Use `cargo run --release` to run the application
+
+#### NOTE:
+- Might fail if not ran with administrative privileges
+- You need to [load and start the driver]((https://github.com/sn99/minifilter-rs#loadingremoving-driver)) before running
+  the program or else it will error out
