@@ -1,4 +1,5 @@
 #pragma once
+#define POOL_FLAG_NON_PAGED 0x0000000000000040UI64  // Non paged pool NX
 
 //Hashnode class
 struct HashNode {
@@ -14,7 +15,7 @@ struct HashNode {
     }
 
     void* HashNode::operator new(size_t size) {
-        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+        void* ptr = ExAllocatePool2(POOL_FLAG_NON_PAGED, size, 'RW');
         memset(ptr, 0, size);
         return ptr;
     }
@@ -25,7 +26,7 @@ struct HashNode {
     //fixme needs new and delete operator
 };
 
-//Our own Hashmap class - implemented as array of list entries
+// Our own Hashmap class - implemented as array of list entries
 class HashMap {
     //hash element array
     PLIST_ENTRY arr[100];
@@ -54,8 +55,7 @@ class HashMap {
         }
     }
 
-    // This implements hash function to find index
-    // for a key
+    // This implements hash function to find index for a key
     ULONGLONG hashCode(ULONGLONG key) {
         return key % capacity;
     }

@@ -11,6 +11,8 @@
     #define IS_DEBUG_IRP 0
 #endif  // DEBUG_IRP
 
+#define POOL_FLAG_NON_PAGED 0x0000000000000040UI64  // Non paged pool NX
+
 // PID_ENTRY - for each process in the system we record, we get its pid and image file, those are stord in thi struct
 // the struct is meant to be used in blist (LIST_ENTRY)
 typedef struct _PID_ENTRY {
@@ -26,7 +28,7 @@ typedef struct _PID_ENTRY {
     }
 
     void* _PID_ENTRY::operator new(size_t size) {
-        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+        void* ptr = ExAllocatePool2(POOL_FLAG_NON_PAGED, size, 'RW');
         if (size && ptr != nullptr)
             memset(ptr, 0, size);
         return ptr;
@@ -71,7 +73,7 @@ typedef struct _IRP_ENTRY {
     }
 
     void* _IRP_ENTRY::operator new(size_t size) {
-        void* ptr = ExAllocatePoolWithTag(NonPagedPool, size, 'RW');
+        void* ptr = ExAllocatePool2(POOL_FLAG_NON_PAGED, size, 'RW');
         if (size && ptr != nullptr)
             memset(ptr, 0, size);
         return ptr;

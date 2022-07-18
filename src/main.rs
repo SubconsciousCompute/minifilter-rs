@@ -20,6 +20,6 @@ fn main() {
         .expect("unable to kill");
 
     dbg!(&driver, k);
-    println!();
+    println!("{}", k.message());
     // sleep(Duration::from_secs(20));
 }

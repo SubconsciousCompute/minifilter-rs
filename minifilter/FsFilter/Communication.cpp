@@ -1,5 +1,7 @@
 #include "Communication.h"
 
+#define POOL_FLAG_NON_PAGED 0x0000000000000040UI64  // Non paged pool NX
+
 NTSTATUS InitCommData() {
     HRESULT status;
     OBJECT_ATTRIBUTES oa;
@@ -12,7 +14,7 @@ NTSTATUS InitCommData() {
 
     status = FltBuildDefaultSecurityDescriptor(
         &sd,
-        FLT_PORT_ALL_ACCESS);  //  We secure the port so only ADMINs & SYSTEM can acecss it.
+        FLT_PORT_ALL_ACCESS);  //  We secure the port so only ADMIN(s) & SYSTEM can access it.
     status = RtlSetDaclSecurityDescriptor(
         sd,
         TRUE,
@@ -113,7 +115,7 @@ VOID RWFDissconnect(_In_opt_ PVOID ConnectionCookie) {
     //
     //  Reset the user-process field.
     //
-    DbgPrint("Disconnent\n");
+    DbgPrint("Disconnect\n");
     commHandle->CommClosed = TRUE;
 }
 
@@ -154,7 +156,7 @@ RWFNewMessage(
         } else {
             delete newEntry;
             *((PBOOLEAN)OutputBuffer) = FALSE;
-            DbgPrint("Failed to addscan directory\n");
+            DbgPrint("Failed to add scan directory\n");
             return STATUS_SUCCESS;
         }
 
@@ -193,7 +195,7 @@ RWFNewMessage(
         return STATUS_INVALID_PARAMETER;
 
     }
-    // FIXME: the kill code to gid
+    // TODO: the kill code to gid
     else if (message->type == MESSAGE_KILL_GID) {
         if (OutputBuffer == NULL || OutputBufferLength != sizeof(LONG)) {
             return STATUS_INVALID_PARAMETER;
@@ -213,7 +215,7 @@ RWFNewMessage(
         // there is gid with processes
         PULONG
         Buffer = (PULONG)
-            ExAllocatePoolWithTag(NonPagedPool, sizeof(ULONG) * gidSize, 'RW');
+            ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ULONG) * gidSize, 'RW');
         if (Buffer == nullptr) {
             DbgPrint("!!! FS : memory allocation error on non paged pool\n");
             *((PLONG)OutputBuffer) =

@@ -37,7 +37,7 @@ DriverData* driverData;
 BOOLEAN DriverData::RemoveProcessRecordAux(ULONG ProcessId, ULONGLONG gid) {
     BOOLEAN ret = FALSE;
     PGID_ENTRY gidRecord = (PGID_ENTRY)GidToPids.get(gid);
-    if (gidRecord == nullptr) {  // shouldnt happen
+    if (gidRecord == nullptr) {  // shouldn't happen
         return FALSE;
     }
     PLIST_ENTRY header = &(gidRecord->HeadListPids);
@@ -121,7 +121,7 @@ BOOLEAN DriverData::RecordNewProcess(
         ULONGLONG retInsert;
         if ((retInsert =
                  (ULONGLONG)PidToGids.insertNode(ProcessId, (HANDLE)gid))
-            != gid) {  // shouldnt happen
+            != gid) {  // shouldn't happen
             RemoveProcessRecordAux(ProcessId, retInsert);
         }
         PGID_ENTRY gidRecord = (PGID_ENTRY)GidToPids.get(gid);
@@ -147,7 +147,7 @@ BOOLEAN DriverData::RemoveGid(ULONGLONG gid) {
     KeAcquireSpinLock(&GIDSystemLock, &irql);
     PGID_ENTRY gidRecord = (PGID_ENTRY)GidToPids.get(gid);
     if (gidRecord) {  // there is Gid list
-        RemoveGidRecordAux(gidRecord);  //clear process list
+        RemoveGidRecordAux(gidRecord);  // clear process list
         GidToPids.deleteNode(gid);  // remove the gidRecord from GidToPids
         RemoveEntryList(
             &(gidRecord->GidListEntry));  // unlink from list of gids
@@ -226,7 +226,7 @@ ULONGLONG DriverData::GetProcessGid(ULONG ProcessId, PBOOLEAN found) {
     if (ret)
         *found = TRUE;
     KeReleaseSpinLock(&GIDSystemLock, irql);
-    //DbgPrint("Gid: %d %d\n", ret, *found);
+    DbgPrint("Gid: %d %d\n", ret, *found);
     return ret;
 }
 
@@ -536,7 +536,8 @@ PDIRECTORY_ENTRY DriverData::RemDirectoryEntry(LPCWSTR directory) {
 }
 
 /**
-	IsContainingDirectory returns true if one of the directory entries in our LIST_ENTRY of PDIRECTORY_ENTRY is in the path passed as param
+ IsContainingDirectory returns true if one of the directory entries in our
+ LIST_ENTRY of PDIRECTORY_ENTRY is in the path passed as param
 */
 BOOLEAN DriverData::IsContainingDirectory(CONST PUNICODE_STRING path) {
     if (path == NULL || path->Buffer == NULL)
@@ -561,10 +562,10 @@ BOOLEAN DriverData::IsContainingDirectory(CONST PUNICODE_STRING path) {
                 }
             }
 
-            //ret = (wcsstr(path, pStrct->path) != NULL);
+            // ret = (wcsstr(path, pStrct->path) != NULL);
             if (ret)
                 break;
-            //Move to next Entry in list.
+            // Move to next Entry in list.
             pEntry = pEntry->Flink;
         }
     }

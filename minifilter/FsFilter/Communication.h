@@ -50,7 +50,7 @@ RWFConnect(
     _In_ ULONG SizeOfContext,
     _Outptr_result_maybenull_ PVOID* ConnectionCookie);
 
-// AMFConnect: handle messages recieved from user mode
+// AMFConnect: handle messages received from user mode
 
 NTSTATUS RWFNewMessage(
     IN PVOID PortCookie,
@@ -60,6 +60,6 @@ NTSTATUS RWFNewMessage(
     IN ULONG OutputBufferLength,
     OUT PULONG ReturnOutputBufferLength);
 
-// AMFDissconnect: Handles user mode application which dissconnects from the driver
+// AMFDisconnect: Handles user mode application which disconnects from the driver
 
 VOID RWFDissconnect(_In_opt_ PVOID ConnectionCookie);

@@ -20,6 +20,8 @@ Environment:
                 : __WARNING_ENCODE_MEMBER_FUNCTION_POINTER, \
                   "Not valid for kernel mode drivers")
 
+#define POOL_FLAG_NON_PAGED 0x0000000000000040UI64  // Non paged pool NX
+
 //  Structure that contains all the global data structures used throughout the driver.
 
 EXTERN_C_START
@@ -152,7 +154,7 @@ Return Value:
     driverData->setFilterStart();
     DbgPrint("loaded scanner successfully");
     // new code
-    // FIXME: check status and release in unload
+    // TODO: check status and release in unload
     PsSetCreateProcessNotifyRoutine(AddRemProcessRoutine, FALSE);
     return STATUS_SUCCESS;
 }
@@ -163,7 +165,7 @@ FSUnloadDriver(_In_ FLT_FILTER_UNLOAD_FLAGS Flags)
 
 Routine Description:
 
-	This is the unload routine for the Filter driver.  This unregisters the
+	This is to unload routine for the Filter driver.  This unregisters the
 	Filter with the filter manager and frees any allocated global data
 	structures.
 
@@ -173,7 +175,7 @@ Arguments:
 
 Return Value:
 
-	Returns the final status of the deallocation routines.
+	Returns the final status of the de-allocation routines.
 
 --*/
 {
@@ -389,7 +391,7 @@ Return Value:
     if (FltObjects->FileObject == NULL) {  //no file object
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
-    // create tested only on post op, cant check here
+    // create tested only on post op, can't check here
     if (Data->Iopb->MajorFunction == IRP_MJ_CREATE) {
         return FLT_PREOP_SUCCESS_WITH_CALLBACK;
     }
@@ -461,7 +463,7 @@ FSProcessPreOperartion(
 
     if (IS_DEBUG_IRP)
         DbgPrint(
-            "!!! FSFilter: Registring new irp for Gid: %d with pid: %d\n",
+            "!!! FSFilter: Registering new irp for Gid: %d with pid: %d\n",
             gid,
             newItem->PID);
 
@@ -697,7 +699,7 @@ FSPostOperation(
 
 Routine Description:
 
-	Post opeartion callback. we reach here in case of IRP_MJ_CREATE or IRP_MJ_READ
+	Post operation callback. we reach here in case of IRP_MJ_CREATE or IRP_MJ_READ
 
 Arguments:
 
@@ -793,7 +795,7 @@ FSProcessCreateIrp(
     }
     newItem->Gid = gid;
     DbgPrint(
-        "!!! FSFilter: Registring new irp for Gid: %d with pid: %d\n",
+        "!!! FSFilter: Registering new irp for Gid: %d with pid: %d\n",
         gid,
         newItem
             ->PID);  // TODO: incase it doesnt exist we can add it with our method that checks for system process
@@ -830,7 +832,7 @@ FSProcessCreateIrp(
         newItem->FileChange = FILE_OPEN_DIRECTORY;
     } else if (isDir) {
         if (IS_DEBUG_IRP)
-            DbgPrint("!!! FSFilter: Dir but not listing, not importent \n");
+            DbgPrint("!!! FSFilter: Dir but not listing, not important \n");
         delete newEntry;
         return FLT_POSTOP_FINISHED_PROCESSING;
     } else if (
@@ -926,7 +928,7 @@ FSProcessPostReadIrp(
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
     if (IS_DEBUG_IRP)
-        DbgPrint("!!! FSFilter: Addung entry to irps IRP_MJ_READ\n");
+        DbgPrint("!!! FSFilter: Adding entry to irps IRP_MJ_READ\n");
     if (!driverData->AddIrpMessage(entry)) {
         delete entry;
     }
@@ -959,7 +961,7 @@ FSProcessPostReadSafe(
                 entry->data.isEntropyCalc = TRUE;
                 if (IS_DEBUG_IRP)
                     DbgPrint(
-                        "!!! FSFilter: Addung entry to irps IRP_MJ_READ\n");
+                        "!!! FSFilter: Adding entry to irps IRP_MJ_READ\n");
                 if (driverData->AddIrpMessage(entry)) {
                     return FLT_POSTOP_FINISHED_PROCESSING;
                 }
@@ -1105,8 +1107,7 @@ GetProcessNameByHandle(_In_ HANDLE ProcessHandle, _Out_ PUNICODE_STRING* Name) {
     NTSTATUS status = STATUS_UNSUCCESSFUL;
 
     do {
-        pni =
-            (PUNICODE_STRING)ExAllocatePoolWithTag(NonPagedPool, pniSize, 'RW');
+        pni = (PUNICODE_STRING)ExAllocatePool2(POOL_FLAG_NON_PAGED, pniSize, 'RW');
         if (pni != NULL) {
             status = ZwQueryInformationProcess(
                 ProcessHandle,
