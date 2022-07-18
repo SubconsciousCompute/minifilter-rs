@@ -1,19 +1,27 @@
 # minifilter-rs
 
-## Building Driver
+## Table of Contents
+- [Minifilter Driver](https://github.com/sn99/minifilter-rs#minifilter-driver)
+    - [Building Driver](https://github.com/sn99/minifilter-rs#building-driver)
+    - [Installing Driver](https://github.com/sn99/minifilter-rs#building-driver)
+    - [Loading/Removing Driver](https://github.com/sn99/minifilter-rs#loading/removing-driver)
+
+## Minifilter Driver
+
+### Building Driver
 
 1. Open `VS 2022` as Administrator
 2. Goto `minifilter-rs -> minifilter -> RWatch.sln`
 3. Build solution in `Debug` mode with `x64`
 
-## Installing Driver
+### Installing Driver
 
 1. Open Powershell or command prompt as Administrator
 2. `RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 <path-to>\minifilter-rs\minifilter\x64\Debug\FsFilter.inf`
 
 You should be able to see the driver at `"C:\Windows\System32\drivers\FsFilter.sys"`
 
-## Loading Driver
+### Loading/Removing Driver
 
 1. Open Powershell or command prompt as Administrator
 2. Start the driver using `sc start FSFilter`, expected output:
@@ -51,7 +59,7 @@ You can also run `Fltmc.exe` to see the currently loaded drivers:
 Filter Name                     Num Instances    Altitude    Frame
 ------------------------------  -------------  ------------  -----
 bindflt                                 1       409800         0
-FSFilter                                4       378781         0
+FSFilter                                4       378781         0   // our minifilter driver
 WdFilter                                5       328010         0
 storqosflt                              0       244000         0
 wcifs                                   0       189900         0

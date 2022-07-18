@@ -226,7 +226,7 @@ ULONGLONG DriverData::GetProcessGid(ULONG ProcessId, PBOOLEAN found) {
     if (ret)
         *found = TRUE;
     KeReleaseSpinLock(&GIDSystemLock, irql);
-    DbgPrint("Gid: %d %d\n", ret, *found);
+    // DbgPrint("Gid: %d %d\n", ret, *found);
     return ret;
 }
 
