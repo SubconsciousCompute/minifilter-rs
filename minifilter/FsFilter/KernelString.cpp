@@ -1,5 +1,7 @@
 #include "KernelString.h"
 
+#define POOL_FLAG_NON_PAGED 0x0000000000000040UI64  // Non paged pool NX
+
 NTSTATUS
 FSAllocateUnicodeString(_Inout_ PUNICODE_STRING String)
 /*++
@@ -21,7 +23,7 @@ Return Value:
 --*/
 {
     String->Buffer =
-        (PWCH)ExAllocatePoolWithTag(NonPagedPool, String->MaximumLength, 'RW');
+        (PWCH)ExAllocatePool2(POOL_FLAG_NON_PAGED, String->MaximumLength, 'RW');
 
     if (String->Buffer == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
