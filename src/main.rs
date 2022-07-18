@@ -1,7 +1,5 @@
-extern crate core;
-
-// use std::thread::sleep;
-// use std::time::Duration;
+use std::thread::sleep;
+use std::time::Duration;
 use minifilter_rs::driver_comm;
 
 fn main() {
@@ -21,5 +19,5 @@ fn main() {
 
     dbg!(&driver, k);
     println!("{}", k.message());
-    // sleep(Duration::from_secs(20));
+    sleep(Duration::from_secs(9));
 }
