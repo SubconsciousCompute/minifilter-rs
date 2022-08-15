@@ -24,6 +24,8 @@
 2. Goto `minifilter-rs -> minifilter -> RWatch.sln`
 3. Build solution in `Debug` mode with `x64`
 
+**NOTE: Enable Loading of Test Signed Drivers by executing `Bcdedit.exe -set TESTSIGNING ON` in administrative cmd**
+
 ### Installing Driver
 
 1. Open Powershell or command prompt as Administrator
