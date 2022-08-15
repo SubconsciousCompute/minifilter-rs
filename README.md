@@ -2,13 +2,19 @@
 
 ## Table of Contents
 
+<details>
+    <summary>Table of Contents</summary>
+
 - [Minifilter Driver](https://github.com/sn99/minifilter-rs#minifilter-driver)
     - [Building Driver](https://github.com/sn99/minifilter-rs#building-driver)
     - [Installing Driver](https://github.com/sn99/minifilter-rs#building-driver)
     - [Loading/Removing Driver](https://github.com/sn99/minifilter-rs#loadingremoving-driver)
 - [Rust Application](https://github.com/sn99/minifilter-rs#rust-application)
-  - [Building Rust App](https://github.com/sn99/minifilter-rs#building-rust-app)
-  - [Running Rust App](https://github.com/sn99/minifilter-rs#running-rust-app)
+    - [Building Rust App](https://github.com/sn99/minifilter-rs#building-rust-app)
+    - [Running Rust App](https://github.com/sn99/minifilter-rs#running-rust-app)
+- [What and the How](https://github.com/sn99/minifilter-rs#what-and-the-how)
+
+</details>
 
 ## Minifilter Driver
 
@@ -85,7 +91,39 @@ Simply use `cargo build --release` to build the application
 
 Use `cargo run --release` to run the application
 
+The program starts to print the `IOMessage` which is defined like:
+
+```rust
+#[repr(C)]
+pub struct IOMessage {
+    pub extension: [wchar_t; 12],
+    pub file_id_vsn: c_ulonglong,
+    pub file_id_id: [u8; 16],
+    pub mem_sized_used: c_ulonglong,
+    pub entropy: f64,
+    pub pid: c_ulong,
+    pub irp_op: c_uchar,
+    pub is_entropy_calc: u8,
+    pub file_change: c_uchar,
+    pub file_location_info: c_uchar,
+    pub filepathstr: String,
+    pub gid: c_ulonglong,
+    pub runtime_features: RuntimeFeatures,
+    pub file_size: i64,
+}
+```
+
 #### NOTE:
+
 - Might fail if not ran with administrative privileges
 - You need to [load and start the driver]((https://github.com/sn99/minifilter-rs#loadingremoving-driver)) before running
   the program or else it will error out
+
+## What and the How
+
+We basically share definition between the mini-filter and Rust using `#[repr(C)]`
+
+![shared_def](readme_resources/shared_def.png)
+
+We use [channels](https://doc.rust-lang.org/std/sync/mpsc/fn.channel.html) to process
+all [IRPs](https://docs.microsoft.com/en-us/windows-hardware/drivers/ifs/irps-are-different-from-fast-i-o).

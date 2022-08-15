@@ -81,6 +81,7 @@ pub struct UnicodeString {
 }
 
 impl UnicodeString {
+    /*
     pub fn to_string(&self) -> String {
         unsafe {
             let str_slice = std::slice::from_raw_parts(self.buffer, self.length as usize);
@@ -94,6 +95,7 @@ impl UnicodeString {
             String::from_utf16_lossy(&str_slice[..first_zero_index])
         }
     }
+    */
 
     /// Get the file path from the UnicodeString path and the extension returned by the driver.
     pub fn to_string_ext(&self, extension: [wchar_t; 12]) -> String {
@@ -135,6 +137,28 @@ impl UnicodeString {
             } else {
                 String::from_utf16_lossy(&str_slice[..first_zero_index])
             }
+        }
+    }
+}
+
+use std::fmt;
+
+impl fmt::Display for UnicodeString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        unsafe {
+            let str_slice = std::slice::from_raw_parts(self.buffer, self.length as usize);
+            let mut first_zero_index = 0;
+            for (i, c) in str_slice.iter().enumerate() {
+                if *c == 0 {
+                    first_zero_index = i;
+                    break;
+                }
+            }
+            write!(
+                f,
+                "{}",
+                String::from_utf16_lossy(&str_slice[..first_zero_index])
+            )
         }
     }
 }
