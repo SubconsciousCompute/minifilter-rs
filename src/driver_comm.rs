@@ -40,17 +40,18 @@ struct DriverComMessage {
 
 /// Messages types to send directives to the minifilter, by using te [DriverComMessage] struct.
 #[repr(C)]
+#[allow(dead_code)]
 enum DriverComMessageType {
     /// Not used yet. The minifilter has the ability to monitor a specific part of the fs.
-    MessageAddScanDirectory,
+    AddScanDirectory,
     /// Not used yet. The minifilter has the ability to monitor a specific part of the fs.
-    MessageRemScanDirectory,
+    RemScanDirectory,
     /// Ask for a [ReplyIrp], if any available.
-    MessageGetOps,
+    GetOps,
     /// Set this app pid to the minifilter (related IRPs will be ignored);
-    MessageSetPid,
+    SetPid,
     /// Instruct the minifilter to kill all pids in the family designated by a given gid.
-    MessageKillGid,
+    KillGid,
 }
 
 /// A minifilter is identified by a port (know in advance), like a named pipe used for communication,
@@ -66,7 +67,7 @@ impl Driver {
     /// If this fn is not used and the program has stopped, the handle is automatically closed,
     /// seemingly without any side-effects.
     pub fn close_kernel_communication(&self) -> bool {
-        unsafe { CloseHandle(&self.handle).as_bool() }
+        unsafe { CloseHandle(self.handle).as_bool() }
     }
 
     /// The user-mode running app (this one) has to register itself to the driver.
@@ -74,7 +75,7 @@ impl Driver {
         let buf = Driver::string_to_commessage_buffer(r"\Device\harddiskVolume");
 
         let mut get_irp_msg: DriverComMessage = DriverComMessage {
-            r#type: DriverComMessageType::MessageSetPid as c_ulong,
+            r#type: DriverComMessageType::SetPid as c_ulong,
             pid: get_current_pid().unwrap().as_u32() as c_ulong,
             gid: 140713315094899,
             path: buf, //wch!("\0"),
@@ -119,7 +120,7 @@ impl Driver {
     /// [ReplyIrp] is optional since the minifilter returns null if there is no new activity.
     pub fn get_irp(&self, vecnew: &mut Vec<u8>) -> Option<ReplyIrp> {
         let mut get_irp_msg = Driver::build_irp_msg(
-            DriverComMessageType::MessageGetOps,
+            DriverComMessageType::GetOps,
             get_current_pid().unwrap(),
             0,
             "",
@@ -152,7 +153,7 @@ impl Driver {
     /// by calls to NtClose.
     pub fn try_kill(&self, gid: c_ulonglong) -> Result<HRESULT, windows::core::Error> {
         let mut killmsg = DriverComMessage {
-            r#type: DriverComMessageType::MessageKillGid as c_ulong,
+            r#type: DriverComMessageType::KillGid as c_ulong,
             pid: 0, //get_current_pid().unwrap() as u32,
             gid,
             path: [0; 520],
@@ -191,7 +192,7 @@ impl Driver {
         path: &str,
     ) -> DriverComMessage {
         DriverComMessage {
-            r#type: commsgtype as c_ulong, // MessageSetPid
+            r#type: commsgtype as c_ulong, // SetPid
             pid: pid.as_u32() as c_ulong,
             gid,
             path: Driver::string_to_commessage_buffer(path),

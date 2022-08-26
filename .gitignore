@@ -271,3 +271,4 @@ __pycache__/
 
 # Custom
 *.exe
+/src/temp.rs
