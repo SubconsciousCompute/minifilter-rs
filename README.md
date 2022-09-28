@@ -115,6 +115,9 @@ pub struct IOMessage {
 }
 ```
 
+We end the process using `ctrl + c` in the example video:
+![video](readme_resources/example.gif)
+
 #### NOTE:
 
 - Might fail if not ran with administrative privileges
