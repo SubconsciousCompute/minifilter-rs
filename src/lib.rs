@@ -50,7 +50,7 @@
 //!         WAIT_HINT          : 0x0
 //!         PID                : 0
 //!         FLAGS              :
-//!    ```ignore
+//!    ```
 //! 3. Stop the driver using `sc stop FSFilter`, should give the following output:
 //!     ```ignore
 //!    SERVICE_NAME: FSFilter
@@ -60,16 +60,15 @@
 //!         SERVICE_EXIT_CODE  : 0  (0x0)
 //!         CHECKPOINT         : 0x0
 //!         WAIT_HINT          : 0x0
-//!    ```ignore
+//!    ```
 //! 4. Remove it by `sc delete FSFilter`, should give the following output:
 //!      ```ignore
 //!    [SC] DeleteService SUCCESS
-//!    ```ignore
+//!    ```
 //!
 //! You can also run `Fltmc.exe` to see the currently loaded drivers:
 //!
 //! ```ignore
-//!
 //! Filter Name                     Num Instances    Altitude    Frame
 //! ------------------------------  -------------  ------------  -----
 //! bindflt                                 1       409800         0
@@ -83,7 +82,7 @@
 //! npsvctrig                               1        46000         0
 //! Wof                                     3        40700         0
 //! FileInfo                                5        40500         0
-//! ```ignore
+//! ```
 //!
 //! ## Rust Application
 //!
@@ -115,7 +114,7 @@
 //!     pub runtime_features: RuntimeFeatures,
 //!     pub file_size: i64,
 //! }
-//! ```ignore
+//! ```
 //!
 //! We end the process using `ctrl + c` in the example video:
 //! ![video](readme_resources/example.gif)

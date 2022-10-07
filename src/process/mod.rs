@@ -10,7 +10,7 @@
 //!
 //! ## How is a GID state maintained over time?
 //! A [`ProcessRecord`] instance is associated to each *GID* identified by the driver.
-//! [`IOMessage`](crate::driver_com::shared_def::IOMessage) fetched from the minifilter contains data that
+//! [`IOMessage`](crate::shared_def::IOMessage) fetched from the minifilter contains data that
 //! are aggregated in real time and used for predictions by the Neural Network.
 //!
 //! ## Time is not a good metric
@@ -56,13 +56,13 @@ pub struct ProcessRecord {
     pub gid: c_ulonglong,
     /// Set of pids in this family of processes.
     pub pids: HashSet<c_ulong>,
-    /// Count of Read operations [crate::driver_com::IrpMajorOp::IrpRead]
+    /// Count of Read operations [`IrpRead`](crate::driver_comm::IrpMajorOp::IrpRead)
     pub ops_read: u64,
-    /// Count of SetInfo operations [crate::driver_com::IrpMajorOp::IrpSetInfo]
+    /// Count of SetInfo operations [`IrpSetInfo`](crate::driver_comm::IrpMajorOp::IrpSetInfo)
     pub ops_setinfo: u64,
-    /// Count of Write operations [crate::driver_com::IrpMajorOp::IrpWrite]
+    /// Count of Write operations [`IrpWrite`](crate::driver_comm::IrpMajorOp::IrpWrite)
     pub ops_written: u64,
-    /// Count of Handle Creation operations [crate::driver_com::IrpMajorOp::IrpCreate]
+    /// Count of Handle Creation operations [`IrpCreate`](crate::driver_comm::IrpMajorOp::IrpCreate)
     pub ops_open: u64,
     /// Total of bytes read
     pub bytes_read: u64,
@@ -117,48 +117,48 @@ pub struct ProcessRecord {
     /// Number of driver messages received for this Gid
     pub driver_msg_count: usize,
 
-    /// Used by [Self::launch_thread_clustering] to communicate with a thread in charge of the heavy computations (clustering).
+    /// Used by [`launch_thread_clustering`](Self::launch_thread_clustering) to communicate with a thread in charge of the heavy computations (clustering).
     tx: Sender<MultiThreadClustering>,
     /// Used by [Self::launch_thread_clustering
     /// ] to communicate with a thread in charge of the heavy computations (clustering).
     rx: Receiver<MultiThreadClustering>,
-    /// Used by [Self::launch_thread_clustering] to communicate with a thread in charge of the heavy computations (clustering).
+    /// Used by [`launch_thread_clustering`](Self::launch_thread_clustering) to communicate with a thread in charge of the heavy computations (clustering).
     is_thread_clustering_running: bool,
     last_thread_clustering_time: SystemTime,
     last_thread_clustering_duration: Duration,
 
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_empty: HashSet<String>,
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_tiny: HashSet<String>,
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_small: HashSet<String>,
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_medium: HashSet<String>,
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_large: HashSet<String>,
-    /// Files sorted by size according to steps, with the [sort_file_size](Self::sort_file_size) function.
+    /// Files sorted by size according to steps, with the [`sort_file_size`](Self::sort_file_size) function.
     pub file_size_huge: HashSet<String>,
 
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_empty: Vec<c_ulonglong>,
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_tiny: Vec<c_ulonglong>,
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_small: Vec<c_ulonglong>,
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_medium: Vec<c_ulonglong>,
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_large: Vec<c_ulonglong>,
-    /// Number of bytes transferred sorted according to steps, with the [sort_bytes](Self::sort_bytes) function.
+    /// Number of bytes transferred sorted according to steps, with the [`sort_bytes`](Self::sort_bytes) function.
     pub bytes_size_huge: Vec<c_ulonglong>,
-    /// Count of Read operations [crate::driver_com::IrpMajorOp::IrpRead] on a shared (remote) drive
+    /// Count of Read operations ['IrpRead'](crate::driver_comm::IrpMajorOp::IrpRead) on a shared (remote) drive
     pub on_shared_drive_read_count: u32,
-    /// Count of Write operations [crate::driver_com::IrpMajorOp::IrpWrite] on a shared (remote) drive
+    /// Count of Write operations [`IrpWrite`](crate::driver_comm::IrpMajorOp::IrpWrite) on a shared (remote) drive
     pub on_shared_drive_write_count: u32,
-    /// Count of Read operations [crate::driver_com::IrpMajorOp::IrpRead] on a removable drive
+    /// Count of Read operations [`IrpRead`](crate::driver_comm::IrpMajorOp::IrpRead) on a removable drive
     pub on_removable_drive_read_count: u32,
-    /// Count of Write operations [crate::driver_com::IrpMajorOp::IrpWrite] on a removable drive
+    /// Count of Write operations ['IrpWrite'](crate::driver_comm::IrpMajorOp::IrpWrite) on a removable drive
     pub on_removable_drive_write_count: u32,
 }
 
@@ -479,12 +479,12 @@ impl ProcessRecord {
     }
 
     /// Sorts the number of bytes transferred according to the defined levels:
-    /// * Empty    (0 KB)
-    /// * Tiny    (0 – 16 KB)
-    /// * Small    (16 KB – 1 MB)
-    /// * Medium    (1 – 128 MB)
-    /// * Large    (128 MB – 1 GB)
-    /// * Huge    (> 1 GB)
+    /// - Empty   (0 KB)
+    /// - Tiny    (0 – 16 KB)
+    /// - Small   (16 KB – 1 MB)
+    /// - Medium  (1 – 128 MB)
+    /// - Large   (128 MB – 1 GB)
+    /// - Huge    (> 1 GB)
     fn sort_bytes(&mut self, bytes: c_ulonglong) {
         if bytes == 0 {
             self.bytes_size_empty.push(0);
@@ -502,12 +502,12 @@ impl ProcessRecord {
     }
 
     /// Sorts the files by size according to the defined levels:
-    /// * Empty    (0 KB)
-    /// * Tiny    (0 – 16 KB)
-    /// * Small    (16 KB – 1 MB)
-    /// * Medium    (1 – 128 MB)
-    /// * Large    (128 MB – 1 GB)
-    /// * Huge    (> 1 GB)
+    /// - Empty   (0 KB)
+    /// - Tiny    (0 – 16 KB)
+    /// - Small   (16 KB – 1 MB)
+    /// - Medium  (1 – 128 MB)
+    /// - Large   (128 MB – 1 GB)
+    /// - Huge    (> 1 GB)
     fn sort_file_size(&mut self, fsize: i64, fpath: &str) {
         if fsize == 0 {
             self.file_size_empty.insert(fpath.to_string());

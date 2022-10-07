@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 use std::path::PathBuf;
 use windows::Win32::Foundation::{CloseHandle, GetLastError};
-use windows::Win32::System::Diagnostics::Debug::DebugActiveProcess;
+// use windows::Win32::System::Diagnostics::Debug::DebugActiveProcess;
 use windows::Win32::System::ProcessStatus::K32GetProcessImageFileNameA;
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
 
-use crate::process::{ProcessRecord, ProcessState};
+// use crate::process::{ProcessRecord, ProcessState};
 use crate::shared_def::IOMessage;
 
 pub trait Exepath: Debug {
@@ -43,6 +43,7 @@ impl Exepath for ExepathLive {
     }
 }
 
+/*
 fn try_suspend(proc: &mut ProcessRecord) {
     proc.process_state = ProcessState::Suspended;
     for pid in &proc.pids {
@@ -51,3 +52,4 @@ fn try_suspend(proc: &mut ProcessRecord) {
         }
     }
 }
+*/
