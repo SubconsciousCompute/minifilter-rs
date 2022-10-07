@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use wchar::wchar_t;
 use windows::Win32::Storage::FileSystem::FILE_ID_INFO;
 
-/// See [IOMessage] struct. Used with [crate::driver_com::IrpMajorOp::IrpSetInfo]
+/// See [`IOMessage`] struct. Used with [`IrpSetInfo`](crate::driver_comm::IrpMajorOp::IrpSetInfo)
 #[derive(FromPrimitive)]
 #[repr(C)]
 pub enum FileChangeInfo {
@@ -25,7 +25,7 @@ pub enum FileChangeInfo {
     FileChangeOverwriteFile,
 }
 
-/// See [IOMessage] struct.
+/// See [`IOMessage`] struct.
 #[derive(FromPrimitive)]
 #[repr(C)]
 pub enum FileLocationInfo {
@@ -36,22 +36,22 @@ pub enum FileLocationInfo {
 }
 
 /// Low-level C-like object to communicate with the minifilter.
-/// The minifilter yields ReplyIrp objects (retrieved by [crate::driver_com::Driver::get_irp] to
+/// The minifilter yields ReplyIrp objects (retrieved by [`get_irp`](crate::driver_comm::Driver::get_irp) to
 /// manage the fixed size of the *data buffer.
-/// In other words, a ReplyIrp is a collection of [CDriverMsg] with a capped size.
+/// In other words, a ReplyIrp is a collection of [`CDriverMsg`] with a capped size.
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
 pub struct ReplyIrp {
     /// The size od the collection.
     pub data_size: c_ulonglong,
-    /// The C pointer to the buffer containinf the [CDriverMsg] events.
+    /// The C pointer to the buffer containing the [`CDriverMsg`] events.
     pub data: *const CDriverMsg,
     /// The number of different operations in this collection.
     pub num_ops: u64,
 }
 
 impl ReplyIrp {
-    /// Iterate through ```self.data``` and returns the collection of [CDriverMsg]
+    /// Iterate through ```self.data``` and returns the collection of [`CDriverMsg`]
     fn unpack_drivermsg(&self) -> Vec<&CDriverMsg> {
         let mut res = vec![];
         unsafe {
@@ -70,7 +70,7 @@ impl ReplyIrp {
 }
 
 /// This class is the straight Rust translation of the Win32 API
-/// [UNICODE_STRING](https://docs.microsoft.com/en-us/windows/win32/api/ntdef/ns-ntdef-_unicode_string),
+/// [`UNICODE_STRING`](https://docs.microsoft.com/en-us/windows/win32/api/ntdef/ns-ntdef-_unicode_string),
 /// returned by the driver.
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
@@ -164,56 +164,55 @@ impl fmt::Display for UnicodeString {
 }
 
 /// Represents a driver message.
-///
-/// - extension: The file extension
-/// - file_id_vsn: Hard Disk Volume Serial Number where the file is saved (from FILE_ID_INFO)
-/// - file_id_id:  File ID on the disk (FILE_ID_INFO)
-/// - mem_size_used: Number of bytes transferred (IO_STATUS_BLOCK.Information)
-/// - entropy: (Optional) File Entropy calculated by the driver
-/// - is_entropy_calc: is the entropy calculated?
-/// - pid: Pid responsible for this io activity
-/// - irp_op: Windows IRP Type catched by the minifilter:
-///     * NONE (0)
-///     * READ (1)
-///     * WRITE (2)
-///     * SETINFO (3)
-///     * CREATE (4)
-///     * CLEANUP (5)
-/// - file_change: type of i/o operation:
-///     * FILE_CHANGE_NOT_SET (0)
-///     * FILE_OPEN_DIRECTORY (1)
-///     * FILE_CHANGE_WRITE (2)
-///     * FILE_CHANGE_NEW_FILE (3)
-///     * FILE_CHANGE_RENAME_FILE (4)
-///     * FILE_CHANGE_EXTENSION_CHANGED (5)
-///     * FILE_CHANGE_DELETE_FILE (6)
-///     * FILE_CHANGE_DELETE_NEW_FILE (7)
-///     * FILE_CHANGE_OVERWRITE_FILE (8)
-/// - file_location_info: the driver has the ability to monitor specific directories only (feature currently not used):
-///     * FILE_NOT_PROTECTED (0): Monitored dirs do not contained this file
-///     * FILE_PROTECTED (1)
-///     * FILE_MOVED_IN (2)
-///     * FILE_MOVED_OUT (3)
-/// - filepath: File path on the disk
-/// - gid: Group Identifier (maintained by the minifilter) of the operation
-/// - runtime_features: see class [RuntimeFeatures]
-/// - file_size: size of the file. Can be equal to -1 if the file path is not found.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[repr(C)]
 pub struct IOMessage {
+    /// The file extension
     pub extension: [wchar_t; 12],
+    /// Hard Disk Volume Serial Number where the file is saved (from [`FILE_ID_INFO`])
     pub file_id_vsn: c_ulonglong,
+    /// File ID on the disk ([`FILE_ID_INFO`])
     pub file_id_id: [u8; 16],
+    /// Number of bytes transferred (`IO_STATUS_BLOCK.Information`)
     pub mem_sized_used: c_ulonglong,
+    /// (Optional) File Entropy calculated by the driver
     pub entropy: f64,
+    /// Pid responsible for this io activity
     pub pid: c_ulong,
+    /// Windows IRP Type caught by the minifilter:
+    /// - NONE (0)
+    /// - READ (1)
+    /// - WRITE (2)
+    /// - SETINFO (3)
+    /// - CREATE (4)
+    /// - CLEANUP (5)
     pub irp_op: c_uchar,
+    /// Is the entropy calculated?
     pub is_entropy_calc: u8,
+    /// Type of i/o operation:
+    /// - FILE_CHANGE_NOT_SET (0)
+    /// - FILE_OPEN_DIRECTORY (1)
+    /// - FILE_CHANGE_WRITE (2)
+    /// - FILE_CHANGE_NEW_FILE (3)
+    /// - FILE_CHANGE_RENAME_FILE (4)
+    /// - FILE_CHANGE_EXTENSION_CHANGED (5)
+    /// - FILE_CHANGE_DELETE_FILE (6)
+    /// - FILE_CHANGE_DELETE_NEW_FILE (7)
+    /// - FILE_CHANGE_OVERWRITE_FILE (8)
     pub file_change: c_uchar,
+    /// The driver has the ability to monitor specific directories only (feature currently not used):
+    /// - FILE_NOT_PROTECTED (0): Monitored dirs do not contained this file
+    /// - FILE_PROTECTED (1)
+    /// - FILE_MOVED_IN (2)
+    /// - FILE_MOVED_OUT (3)
     pub file_location_info: c_uchar,
+    /// File path on the disk
     pub filepathstr: String,
+    /// Group Identifier (maintained by the minifilter) of the operation
     pub gid: c_ulonglong,
+    /// see class [`RuntimeFeatures`]
     pub runtime_features: RuntimeFeatures,
+    /// Size of the file. Can be equal to -1 if the file path is not found.
     pub file_size: i64,
 }
 
@@ -245,14 +244,13 @@ impl IOMessage {
     }
 }
 
-/// Stores runtime features that come from *owlyshield_predict* (and not the minifilter).
-///
-/// - exepath: The path of the gid root process
-/// - exe_exists: Did the root exe file still existed (at the moment of this specific *DriverMessage* operation)?
+/// Stores runtime features that come from our application (and not the minifilter).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[repr(C)]
 pub struct RuntimeFeatures {
+    /// The path of the gid root process
     pub exepath: PathBuf,
+    ///  Did the root exe file still existed (at the moment of this specific *DriverMessage* operation)?
     pub exe_still_exists: bool,
 }
 
@@ -271,10 +269,11 @@ impl Default for RuntimeFeatures {
     }
 }
 
-/// The C object returned by the minifilter, available through [ReplyIrp].
+/// The C object returned by the minifilter, available through [`ReplyIrp`].
 /// It is low level and use C pointers logic which is not always compatible with RUST (in particular
-/// the lifetime of *next). That's why we convert it asap to a plain Rust [IOMessage] object.
-/// ```next``` is null (0x0) when there is no [IOMessage] remaining
+/// the lifetime of `*next`). That's why we convert it asap to a plain Rust [`IOMessage`] object.
+///
+/// `next` is null `(0x0)` when there is no [`IOMessage`] remaining.
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
 pub struct CDriverMsg {
@@ -289,12 +288,12 @@ pub struct CDriverMsg {
     pub file_location_info: c_uchar,
     pub filepath: UnicodeString,
     pub gid: c_ulonglong,
-    /// null (0x0) when there is no [IOMessage] remaining
+    /// null (0x0) when there is no [`IOMessage`] remaining
     pub next: *const CDriverMsg,
 }
 
-/// To iterate easily over a collection of [IOMessage] received from the minifilter, before they are
-/// converted to [IOMessage]
+/// To iterate easily over a collection of [`IOMessage`] received from the minifilter, before they are
+/// converted to [`IOMessage`].
 #[repr(C)]
 pub struct CDriverMsgs<'a> {
     drivermsgs: Vec<&'a CDriverMsg>,

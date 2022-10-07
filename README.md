@@ -1,5 +1,7 @@
 # minifilter-rs
 
+**Use `cargo doc --no-deps --document-private-items --open` to read Documentation**
+
 ## Table of Contents
 
 <details>
@@ -91,7 +93,7 @@ Simply use `cargo build --release` to build the application
 
 ### Running Rust App
 
-Use `cargo run --release` to run the application
+Use `cargo run --bin minifilter --release` to run the application
 
 The program starts to print the `IOMessage` which is defined like:
 
