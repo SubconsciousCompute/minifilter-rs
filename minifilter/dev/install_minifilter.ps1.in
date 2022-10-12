@@ -1,0 +1,9 @@
+# Install the minifilter
+rundll32.exe setupapi.dll,InstallHinfSection DefaultInstall 132 @INF_FILE@
+
+# Sleep for 3 seconds.
+Start-Sleep -s 3
+
+# Show the currently loaded drivers.
+fltmc.exe
+echo "Now reboot the computer if requried."
