@@ -1,0 +1,16 @@
+# Uninstall the minifilter
+rundll32.exe setupapi.dll,InstallHinfSection DefaultUninstall 132 @INF_FILE@
+
+
+# Show the driver if it is still installed.
+$sysFile = "C:\Windows\System32\drivers\SubconsciousShield.sys"
+
+# sleep for a few seconds.
+echo "Sleeping for 5 seconds."
+Start-Sleep -Seconds 5
+
+if($sysFile | Test-Path) {
+    echo "Error: $sysFile should not exists."
+} else {
+    echo "Good: no installed $sysFile file found."
+}

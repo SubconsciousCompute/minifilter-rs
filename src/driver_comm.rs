@@ -23,13 +23,13 @@ use crate::shared_def::ReplyIrp;
 
 type BufPath = [wchar_t; 520];
 
-/// The user-mode app (this app) can send several messages types to the driver. See [DriverComMessageType]
+/// The user-mode app (this app) can send several messages types to the driver. See [`DriverComMessageType`]
 /// for details.
 /// Depending on the message type, the *pid*, *gid* and *path* fields can be optional.
 #[derive(Debug)]
 #[repr(C)]
 struct DriverComMessage {
-    /// The type message to send. See [DriverComMessageType].
+    /// The type message to send. See [`DriverComMessageType`].
     r#type: c_ulong,
     /// The pid of the process which triggered an i/o activity;
     pid: c_ulong,
@@ -38,7 +38,7 @@ struct DriverComMessage {
     path: BufPath,
 }
 
-/// Messages types to send directives to the minifilter, by using te [DriverComMessage] struct.
+/// Messages types to send directives to the minifilter, by using te [`DriverComMessage`] struct.
 #[repr(C)]
 #[allow(dead_code)]
 enum DriverComMessageType {
@@ -46,7 +46,7 @@ enum DriverComMessageType {
     AddScanDirectory,
     /// Not used yet. The minifilter has the ability to monitor a specific part of the fs.
     RemScanDirectory,
-    /// Ask for a [ReplyIrp], if any available.
+    /// Ask for a [`ReplyIrp`], if any available.
     GetOps,
     /// Set this app pid to the minifilter (related IRPs will be ignored);
     SetPid,
@@ -55,7 +55,7 @@ enum DriverComMessageType {
 }
 
 /// A minifilter is identified by a port (know in advance), like a named pipe used for communication,
-/// and a handle, retrieved by [Self::open_kernel_driver_com].
+/// and a handle, retrieved by [`open_kernel_driver_com`](Self::open_kernel_driver_com).
 #[derive(Debug)]
 #[repr(C)]
 pub struct Driver {
@@ -87,7 +87,7 @@ impl Driver {
                 self.handle,
                 ptr::addr_of_mut!(get_irp_msg) as *mut c_void,
                 mem::size_of::<DriverComMessage>() as c_ulong,
-                ptr::null_mut(),
+                None,
                 0,
                 &mut tmp as *mut u32,
             )
@@ -96,20 +96,16 @@ impl Driver {
 
     /// Try to open a com canal with the minifilter before this app is registered. This fn can fail
     /// is the minifilter is unreachable:
-    /// * if it is not started (try ```sc start FSFilter``` first
+    ///
+    /// * if it is not started (try `sc start FSFilter` first
     /// * if a connection is already established: it can accepts only one at a time.
+    ///
     /// In that case the Error is raised by the OS (windows::Error) and is generally readable.
     pub fn open_kernel_driver_com() -> Result<Driver, windows::core::Error> {
         let _com_port_name = U16CString::from_str("\\RWFilter").unwrap().into_raw();
         let _handle;
         unsafe {
-            _handle = FilterConnectCommunicationPort(
-                PCWSTR(_com_port_name),
-                0,
-                ptr::null(),
-                0,
-                ptr::null_mut(),
-            )?
+            _handle = FilterConnectCommunicationPort(PCWSTR(_com_port_name), 0, None, 0, None)?
         }
         let res = Driver { handle: _handle };
         Ok(res)
@@ -132,7 +128,7 @@ impl Driver {
                 self.handle,
                 ptr::addr_of_mut!(get_irp_msg) as *mut c_void,
                 mem::size_of::<DriverComMessage>() as c_ulong,
-                vecnew.as_ptr() as *mut c_void,
+                Option::from(vecnew.as_ptr() as *mut c_void),
                 65536_u32,
                 ptr::addr_of_mut!(tmp) as *mut u32,
             )
@@ -166,7 +162,7 @@ impl Driver {
                 self.handle,
                 ptr::addr_of_mut!(killmsg) as *mut c_void,
                 mem::size_of::<DriverComMessage>() as c_ulong,
-                ptr::addr_of_mut!(res) as *mut c_void,
+                Option::from(ptr::addr_of_mut!(res) as *mut c_void),
                 4_u32,
                 ptr::addr_of_mut!(res_size) as *mut u32,
             )?;
@@ -200,7 +196,7 @@ impl Driver {
     }
 }
 
-/// See [shared_def::IOMessage] struct and
+/// See [`IOMessage`](crate::shared_def::IOMessage) struct and
 /// [this doc](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-major-function-codes).
 #[repr(C)]
 pub enum IrpMajorOp {
@@ -210,7 +206,7 @@ pub enum IrpMajorOp {
     IrpRead,
     /// On write, any time following the successful completion of a create request.
     IrpWrite,
-    /// Set Metadata about a file or file handle. In that case, [shared_def::FileChangeInfo] indicates
+    /// Set Metadata about a file or file handle. In that case, [`FileChangeInfo`](crate::shared_def::FileChangeInfo) indicates
     /// the nature of the modification.
     IrpSetInfo,
     /// Open a handle to a file object or device object.
@@ -233,7 +229,7 @@ impl IrpMajorOp {
     }
 }
 
-/// See [shared_def::IOMessage] struct and
+/// See [`IOMessage`](crate::shared_def::IOMessage) struct and
 /// [this doc](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea).
 #[repr(C)]
 pub enum DriveType {

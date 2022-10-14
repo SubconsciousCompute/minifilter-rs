@@ -1,5 +1,6 @@
 use minifilter_rs::driver_comm;
 use minifilter_rs::shared_def::{CDriverMsgs, IOMessage};
+use minifilter_rs::worker::Worker;
 use std::sync::mpsc::channel;
 use std::thread;
 use std::time::Duration;
@@ -33,8 +34,11 @@ fn main() {
         }
     });
 
+    let mut worker = Worker::new();
+
     loop {
-        if let Ok(io_message) = rx_iomsgs.recv() {
+        if let Ok(mut io_message) = rx_iomsgs.recv() {
+            worker.process_io(&mut io_message);
             println!("{:#?}\n", io_message);
         }
     }
