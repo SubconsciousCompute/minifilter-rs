@@ -1,3 +1,5 @@
+Have a look at https://github.com/SubconsciousCompute/fsfilter-rs
+
 # minifilter-rs
 
 **Use `cargo doc --no-deps --document-private-items --open` to read Documentation**
